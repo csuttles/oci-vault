@@ -26,6 +26,28 @@ resource "oci_core_default_security_list" "oci-vault-default-security-list" {
     }
   }
 
+  // allow inbound vault traffic
+  ingress_security_rules {
+    protocol  = "6"         // tcp
+    source    = "0.0.0.0/0"
+    stateless = false
+
+    tcp_options {
+      "min" = 8200
+      "max" = 8201
+    }
+  }
+  // allow inbound vault traffic
+  ingress_security_rules {
+    protocol  = "17"         // udp
+    source    = "0.0.0.0/0"
+    stateless = false
+
+    udp_options {
+      "min" = 8200
+      "max" = 8201
+    }
+  }
   // allow inbound consul traffic
   ingress_security_rules {
     protocol  = "6"         // tcp
