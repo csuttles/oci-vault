@@ -4,7 +4,7 @@ The goal of the code in this repo is to deploy the [Hashicorp recommended archit
 
 ## Documentation
 
-Documentation for this repository is avialable in a series on my blog:
+Documentation for this repository is available in a series on my blog:
 
  - [http://blog.csuttles.io/getting-started-with-terraform-on-oracle-cloud-infrastructure-oci/](http://blog.csuttles.io/getting-started-with-terraform-on-oracle-cloud-infrastructure-oci/)
  - [http://blog.csuttles.io/building-hashicorp-vault-in-oci-part-i/](http://blog.csuttles.io/building-hashicorp-vault-in-oci-part-i/)
