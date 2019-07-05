@@ -1,0 +1,46 @@
+variable "tenancy" {}
+variable "tenancy_ocid" {}
+variable "user_ocid" {}
+variable "fingerprint" {}
+variable "private_key_path" {}
+variable "region" {
+  default = "us-ashburn-1"
+}
+variable "compartment_ocid" {}
+# Configure the Oracle Cloud Infrastructure provider with an API Key
+
+provider "oci" {
+  tenancy_ocid = "${var.tenancy_ocid}"
+  user_ocid = "${var.user_ocid}"
+  fingerprint = "${var.fingerprint}"
+  private_key_path = "${var.private_key_path}"
+  region = "${var.region}"
+  #version = "~> 3.1.0"
+}
+
+# Remote Statefile
+terraform {
+  backend "s3" {
+    region                  = "us-ashburn-1"                                                         # or us-ashburn-1
+    bucket                  = "vault_tfstate"                                                        # Put the tenant name here
+    endpoint                = "https://sonpopsch1.compat.objectstorage.us-ashburn-1.oraclecloud.com" # This will be always the same
+    key                     = "common/terraform.tfstate"                                             # This should contain "[OCI_BUCKET_NAME]/[OBJECT_NAME]"
+    shared_credentials_file = "../../../sharedsecrets/credentials"
+
+    # All S3-specific validations are skipped:
+    skip_region_validation      = true
+    skip_credentials_validation = true
+    skip_metadata_api_check     = true
+    force_path_style            = true
+  }
+}
+
+# Get a list of Availability Domains
+data "oci_identity_availability_domains" "ads" {
+  compartment_id = "${var.tenancy_ocid}"
+}
+
+# Output the result
+output "show-ads" {
+  value = "${data.oci_identity_availability_domains.ads.availability_domains}"
+}
