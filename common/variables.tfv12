@@ -21,11 +21,11 @@ provider "oci" {
 # Remote Statefile
 terraform {
   backend "s3" {
-    region                  = "us-ashburn-1"                                                         # or us-ashburn-1
-    bucket                  = "vault_tfstate"                                                        # Put the tenant name here
-    endpoint                = "https://sonpopsch1.compat.objectstorage.us-ashburn-1.oraclecloud.com" # This will be always the same
-    key                     = "common/terraform.tfstate"                                             # This should contain "[OCI_BUCKET_NAME]/[OBJECT_NAME]"
-    shared_credentials_file = "../../../sharedsecrets/credentials"
+    region                  = "us-ashburn-1"                                                         
+    bucket                  = "oci-vault"                                                            
+    endpoint                = "https://TENANCY.compat.objectstorage.REGION.oraclecloud.com"          
+    key                     = "common/terraform.tfstate"                                             
+    shared_credentials_file = "/home/YOU/.aws/oci-creds"
 
     # All S3-specific validations are skipped:
     skip_region_validation      = true
