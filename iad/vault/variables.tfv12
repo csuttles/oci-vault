@@ -1,0 +1,104 @@
+variable "tenancy_ocid" {}
+variable "user_ocid" {}
+variable "fingerprint" {}
+variable "private_key_path" {}
+variable "compartment_ocid" {}
+variable "region" {
+  default = "us-ashburn-1"
+}
+variable "ssh_public_key" {
+  default = "PATH TO YOUR SSH PUBLIC KEY FOR SSH ACCESS"
+}
+variable "consul_node_to_ad_map" {
+  type = "map"
+
+  default = {
+    "0" = "1"
+    "1" = "1"
+    "2" = "2"
+    "3" = "3"
+    "4" = "3"
+  }
+}
+variable "instance_image_ocid" {
+  # oci compute image list --compartment-id ocid1.compartment.oc1..derp | jq '.data[] | select(."display-name"=="CentOS-7-2018.10.12-0")'
+  default = "ocid1.image.oc1.iad.aaaaaaaavujqgegoqyinkxzigumlwydq42vyf6nr3sfl7ram577zzlz2clpa"
+}
+
+variable "instance_shape" {
+  default = "VM.Standard2.1"
+}
+
+provider "oci" {
+  tenancy_ocid     = "${var.tenancy_ocid}"
+  user_ocid        = "${var.user_ocid}"
+  fingerprint      = "${var.fingerprint}"
+  private_key_path = "${var.private_key_path}"
+  region           = "${var.region}"
+  #version          = "~> 3.1.0"
+}
+
+# Configure the Oracle Cloud Infrastructure provider with an API Key
+terraform {
+  backend "s3" {
+    region                  = "us-ashburn-1"                                                         
+    bucket                  = "oci-vault"                                                  
+    endpoint                = "https://TENANCY.compat.objectstorage.REGION.oraclecloud.com"
+    key                     = "iad/vault/terraform.tfstate"                                
+    shared_credentials_file = "/home/YOU/.aws/oci-creds"
+
+    # All S3-specific validations are skipped:
+    skip_region_validation      = true
+    skip_credentials_validation = true
+    skip_metadata_api_check     = true
+    force_path_style            = true
+  }
+}
+
+# Get a list of Availability Domains
+data "oci_identity_availability_domains" "ads" {
+  compartment_id = "${var.tenancy_ocid}"
+}
+
+data "terraform_remote_state" "common" {
+  backend = "s3"
+  config = {
+    region                  = "us-ashburn-1"                                                
+    bucket                  = "oci-vault"                                                   
+    endpoint                = "https://TENANCY.compat.objectstorage.REGION.oraclecloud.com" 
+    key                     = "common/terraform.tfstate"                                             
+    shared_credentials_file = "/home/YOU/.aws/oci-creds"
+
+    # All S3-specific validations are skipped:
+    skip_region_validation      = true
+    skip_credentials_validation = true
+    skip_metadata_api_check     = true
+    force_path_style            = true
+  }
+}
+
+data "terraform_remote_state" "network" {
+  backend = "s3"
+  config = {
+    region                  = "us-ashburn-1"                                                        
+    bucket                  = "oci-vault"                                                       
+    endpoint                = "https://TENANCY.compat.objectstorage.REGION.oraclecloud.com"
+    key                     = "iad/network/terraform.tfstate"                                       
+    shared_credentials_file = "/home/YOU/.aws/oci-creds"
+
+    # All S3-specific validations are skipped:
+    skip_region_validation      = true
+    skip_credentials_validation = true
+    skip_metadata_api_check     = true
+    force_path_style            = true
+  }
+}
+
+data "oci_identity_availability_domains" "ADs" {
+  compartment_id = data.terraform_remote_state.common.outputs.vault_compartment
+}
+
+# Output the result
+output "show-ads" {
+  value = "${data.oci_identity_availability_domains.ads.availability_domains}"
+}
