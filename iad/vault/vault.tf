@@ -4,7 +4,7 @@ resource "oci_core_instance" "vault" {
   count               = 3
   availability_domain = "${lookup(data.oci_identity_availability_domains.ADs.availability_domains[count.index],"name")}"
   compartment_id      = "${data.terraform_remote_state.common.vault_compartment}"
-  display_name        = "consul-${count.index}"
+  display_name        = "vault-${count.index}"
   shape               = "${var.instance_shape}"
 
   create_vnic_details {
